@@ -14,10 +14,6 @@
                 (area lvalue rvalue step)
                 (integrate-memoized f (dec n) step lvalue)))))))
 
-(defn slow-sqr
-  [x]
-  (Math/sin (Math/asin (Math/sin (Math/asin (Math/pow x 2.0))))))
-
 (defn integrate
   "Функция численно интегрирует функцию f от 0.0 до x с шагом step"
   [f step]
@@ -28,9 +24,20 @@
           rvalue (f (* (dec n) step))]
       (integrate-memoized f n step rvalue))))
 
+(defn slow-function
+  [x]
+  (Thread/sleep 1)
+  1)
+
 (defn main [& args]
-  (let [integrate-function (integrate slow-sqr 0.01)]
+  (let [integrate-function (integrate slow-function 0.01)]
     (time (integrate-function 1))
     (time (integrate-function 0.25))
     (time (integrate-function 0.5))
-    (time (integrate-function 1))))
+    (time (integrate-function 1))
+    
+    (println (integrate-function 0.00))
+    (println (integrate-function 0.25))
+    (println (integrate-function 0.50))
+    (println (integrate-function 0.75))
+    (println (integrate-function 1.00))))

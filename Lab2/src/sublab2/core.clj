@@ -6,31 +6,39 @@
 
 (defn integrated-value
   ([f step]
-    (integrated-value f 0 step 0.0))
-  ([f n step sum]
-   (let [value (+ sum (area (f (* step (dec n))) (f (* step n)) step))]
-     (lazy-seq (cons value (integrated-value f (inc n) step value))))))
-
-(defn slow-sqr
-  [x]
-  (Math/sin (Math/asin (Math/sin (Math/asin (Math/pow x 2.0))))))
+    (integrated-value f step 0 0.0))
+  ([f step n sum]
+   (let [value (if (= n 0)
+                 0.0
+                 (+ sum (area (f (* step (dec n))) (f (* step n)) step)))]
+     (lazy-seq (cons value (integrated-value f step (inc n) value))))))
 
 (defn integrate
   "Функция численно интегрирует функцию f от 0.0 до x с шагом step"
   [f step]
   {:pre [(>= step 0.0)]}
+  (def integrated-value-seq (integrated-value f step))
   (fn [x]
     {:pre [(>= x 0.0)]}
     (let [n (int (quot x step))]
-      (if (= n 0)
-        0.0
-        (nth (integrated-value f step) (dec n))))))
+      (nth integrated-value-seq n))))
 
-; (nth last (take n (integrated-value f step)))
+(defn slow-function
+  [x]
+  (Thread/sleep 1)
+  1)
 
 (defn main [& args]
-  (let [integrate-function (integrate slow-sqr 0.007)]
+  (let [integrate-function (integrate slow-function 0.01)]
     (time (integrate-function 1))
     (time (integrate-function 0.25))
     (time (integrate-function 0.5))
-    (time (integrate-function 1))))
+    (time (integrate-function 1))
+
+    (println (integrate-function 0.00))
+    (println (integrate-function 0.25))
+    (println (integrate-function 0.50))
+    (println (integrate-function 0.75))
+    (println (integrate-function 1.00))))
+
+
